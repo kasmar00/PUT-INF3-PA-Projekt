@@ -1,8 +1,12 @@
-import matplotlib.pyplot as plt
+import io
 import math
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+# https://stackoverflow.com/questions/49921721/runtimeerror-main-thread-is-not-in-main-loop-with-matplotlib-and-flask
 
 
-class car:
+class Car:
     def __init__(self, v0, vzad):
         self.Cd = 0.24
         self.rho = 1.225
@@ -11,7 +15,7 @@ class car:
         self.alfa = 2
         self.g = 9.8
         self.m = 1000
-        self.tsim = 1 * 3600
+        self.tsim = 1 * 500
         self.Tp = 0.1
         self.N = int(self.tsim / self.Tp)
         self.kp = 0.0015
@@ -81,15 +85,9 @@ class car:
         plt.ylabel("gas [%]")
         plt.legend()
 
-        plt.show()
-
-
-a = car(20, 70)
-a.sim()
-
-print(a.u[:30])
-print(a.v[:30])
-print(a.e[:30])
-print(a.x[:30])
-
-a.plots()
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        # plt.close()
+        plt.clf()
+        return buf
