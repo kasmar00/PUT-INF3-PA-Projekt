@@ -13,3 +13,7 @@ Projekt zaliczeniowy na laboratorium z Podstaw Automatyki
    `pip3 freeze > requirements.txt`
 
    Uwaga: wykoryzstywac tylko w virtual enviroment.
+
+## Deployment
+
+https://dev.to/techparida/how-to-deploy-a-flask-app-on-heroku-heb
