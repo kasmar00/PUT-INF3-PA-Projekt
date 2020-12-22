@@ -19,10 +19,10 @@
     const result = document.querySelector("#img");
 
     starting.addEventListener("change", (event) => {
-      result.src = `img/${starting.value}/${ending.value}`;
+      result.src = `img/${starting.value}/${ending.value}?${performance.now()}`;
     });
     ending.addEventListener("change", (event) => {
-      result.src = `img/${starting.value}/${ending.value}`;
+      result.src = `img/${starting.value}/${ending.value}?${performance.now()}`;
     });
   </script>
 </html>

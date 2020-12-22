@@ -11,9 +11,10 @@ def index():
     return render_template("main.jinja2")
 
 
-@app.route('/img/<x>/<y>')
-def img(x, y):
-    a = Car(int(x), int(y))
+@app.route('/img/<int:start>/<int:end>')
+def img(start=0, end=0):
+    print(f"Start: {start} end: {end}")
+    a = Car(start, end)
     a.sim()
 
     img = a.plots()
