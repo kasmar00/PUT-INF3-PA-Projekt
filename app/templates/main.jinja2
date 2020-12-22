@@ -9,20 +9,77 @@
     <h1>Projekt Podstawy Automatyki</h1>
     <label for="name">Prędkość startowa</label>
     <input type="number" id="start" /> <br />
+
     <label for="name">Prędkość zadana</label>
     <input type="number" id="end" /> <br />
+
+    <label for="name">Nachylenie</label>
+    <input type="number" id="alfa" /> <br />
+
+    <br />
+
+    <label for="name">kp</label>
+    <input type="number" id="kp" /> <br />
+    <label for="name">td</label>
+    <input type="number" id="td" /> <br />
+    <label for="name">ti</label>
+    <input type="number" id="ti" /> <br />
+
+    <br />
+
+    <label for="name">Powierzchnia przekroju poprzecznego pojazdu (A)</label>
+    <input type="number" id="area" /> <br />
+    <label for="name">Współczynnik oporu aerodynamicznego (Ca)</label>
+    <input type="number" id="ca" /> <br />
+    <label for="name">Masa samochodu (m)</label>
+    <input type="number" id="mass" /> <br />
+    <label for="name">Maksymalna siła silnika (Fdmax)</label>
+    <input type="number" id="fdmax" /> <br />
+
     <img src="aaa.png" alt="Plot" id="img" />
   </body>
   <script>
     const starting = document.querySelector("#start");
     const ending = document.querySelector("#end");
+    const alfa = document.querySelector("#alfa");
+
+    const kp = document.querySelector("#kp");
+    const td = document.querySelector("#td");
+    const ti = document.querySelector("#ti");
+
+    const area = document.querySelector("#area");
+    const ca = document.querySelector("#ca");
+    const mass = document.querySelector("#mass");
+    const fdmax = document.querySelector("#fdmax");
+
     const result = document.querySelector("#img");
 
-    starting.addEventListener("change", (event) => {
-      result.src = `img/${starting.value}/${ending.value}`;
-    });
-    ending.addEventListener("change", (event) => {
-      result.src = `img/${starting.value}/${ending.value}`;
-    });
+    const update = (event) => {
+      result.src = `img/${alfa.value}/${starting.value}/${ending.value}/${
+        kp.value
+      }/${td.value}/${ti.value}/${area.value}/${ca.value}/${mass.value}/${
+        fdmax.value
+      }?${performance.now()}`;
+    };
+
+    starting.addEventListener("change", update);
+    ending.addEventListener("change", update);
+    alfa.addEventListener("change", update);
+
+    kp.addEventListener("change", update);
+    td.addEventListener("change", update);
+    ti.addEventListener("change", update);
+    kp.value = "0.0015";
+    td.value = "0.01";
+    ti.value = "0.25";
+
+    area.addEventListener("change", update);
+    ca.addEventListener("change", update);
+    mass.addEventListener("change", update);
+    fdmax.addEventListener("change", update);
+    area.value = "5";
+    ca.value = "0.24";
+    mass.value = "1000";
+    fdmax.value = "10000";
   </script>
 </html>

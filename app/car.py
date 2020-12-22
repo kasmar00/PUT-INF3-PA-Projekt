@@ -1,5 +1,6 @@
 import io
 import math
+from typing import *
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
@@ -8,33 +9,54 @@ matplotlib.use('Agg')
 
 class Car:
     def __init__(self, v0, vzad):
-        self.Cd = 0.24
-        self.rho = 1.225
-        self.A = 5.0
-        self.Fp = 10000
-        self.alfa = 2
-        self.g = 9.8
-        self.m = 1000
-        self.tsim = 1 * 500
-        self.Tp = 0.1
-        self.N = int(self.tsim / self.Tp)
-        self.kp = 0.0015
-        self.Ti = 0.25
-        self.Td = 0.01
-        self.vzad = vzad
-        self.v0 = v0
-        self.v = [v0, ]
-        self.e = [0.0, ]
-        self.u = [0.0, ]
-        self.x = [0.0, ]
-        self.umin = 0
-        self.umax = 1
-        self.vmax = 200
-        self.vmin = 0
-        self.u_pierwotne = [0.0, ]
+        # stałe dla regulatora PID
+        self.kp: float = 0.0015                 # wzmocznienie regulatora
+        self.Td: float = 0.01                   # czas wyprzedzenia [s]
+        self.Ti: float = 0.25                   # czas zdwojenia [s]
 
-        # wyznaczenie prostej do obliczania współczynnika % pedału
-        self.prosta_a = 1 / self.umax
+        self.tsim: float = 1 * 500              # czas symulacji [s]
+        self.Tp: float = 0.1                    # czas próbkowania [s]
+        self.N: int = int(self.tsim / self.Tp)  # ilość iteracji
+
+        # stałe dla siły ciągu silnika (Fd)
+        self.Fdmax: float = 10000               # ograniczenie siły ciągu [N]
+
+        # stałe dla siły oporu aerodynamicznego (Fp)
+        self.rho: float = 1.225                 # gęstość powietrza [kg/m^3]
+        # powierzchnia przekroju poprzecznego pojazdu [m^2]
+        self.A: float = 5.0
+        self.Ca: float = 0.24                   # współczynnik oporu aerodynamicznego
+
+        # stałe dla siły spychającej (Fs)
+        self.m: float = 1000                    # masa samochodu [kg]
+        # przyspieszenie ziemskie [m/s^2]
+        self.g: float = 9.8
+        self.alfa: float = 2                    # kąt nachylenia podłoża [°]
+
+        self.vzad: float = vzad                 # prędkość zadana [m/s]
+        self.v0: float = v0                     # prędkość początkowa [m/s]
+
+        # tablice wraz z ograniczeniami
+        self.e: List[float] = [0.0, ]           # wartości uchybu regulacji
+        # wartości wielkości sterującej bez ograniczeń
+        self.u_pierwotne: List[float] = [0.0, ]
+        # wartości wielkości sterującej z ograniczeniami
+        self.u: List[float] = [0.0, ]
+        self.x: List[float] = [0.0, ]           # gaz
+        # wartości prędkości pojazdu [m/s]
+        self.v: List[float] = [v0, ]
+        self.umin: float = -20
+        self.umax: float = 20
+        self.vmax: float = 200
+        self.vmin: float = -200
+
+        # tablica sil do wykresow
+        self.Fcar: List[float] = [0.0]
+        self.Fg: List[float] = [0.0]
+        self.Fop: List[float] = [0.0]
+
+        # wyznaczenie prostej do obliczania współczynnika % wciśnięcia pedału gazu
+        self.prosta_a: float = 1 / self.umax
 
     def sim(self):
         for i in range(self.N):
@@ -54,8 +76,33 @@ class Car:
             self.u.append(u)
             self.x.append(self.prosta_a * u)
 
-            v = self.v[-1] + (self.Tp/self.m)*(self.Fp*self.x[-1]-0.5*self.rho*self.A *
-                                               self.Cd*self.v[-1]*self.v[-1] - self.m*self.g*math.sin(math.radians(self.alfa)))
+            Fcar = self.Fdmax*self.x[-1]
+            Fg = self.m*self.g*math.sin(abs(math.radians(self.alfa)))
+            Fop = 0.5*self.rho*self.A * self.Ca*self.v[-1]*self.v[-1]
+
+            sgnFop = 1
+            sgnFg = 1
+            if math.radians(self.alfa) > 0:
+                if self.v[-1] > 0:
+                    sgnFop = -1
+                    sgnFg = -1
+                else:
+                    sgnFop = 1
+                    sgnFg = -1
+            else:
+                if self.v[-1] > 0:
+                    sgnFop = -1
+                    sgnFg = 1
+                else:
+                    sgnFop = 1
+                    sgnFg = 1
+            v = self.v[-1] + (self.Tp/self.m)*(Fcar+sgnFop*Fop+sgnFg*Fg)
+
+            # zapamietanie sil
+            self.Fcar.append(Fcar)
+            self.Fg.append(sgnFg*Fg)
+            self.Fop.append(sgnFop*Fop)
+
             if v >= self.vmax:
                 v = self.vmax
             if v <= self.vmin:
@@ -64,12 +111,13 @@ class Car:
 
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
+        plt.close()
 
         plt.subplot(3, 1, 1)
         plt.plot(t, self.v, label="v")
         plt.axhline(y=self.vzad, color='r', linestyle='--', label="vzad")
         plt.xlabel("t [s]")
-        plt.ylabel("v [m/s^2]")
+        plt.ylabel("v [m/s]")
         plt.legend()
 
         plt.subplot(3, 1, 2)
@@ -79,15 +127,23 @@ class Car:
         plt.ylabel("u [V]")
         plt.legend()
 
+        # plt.subplot(4, 1, 3)
+        # plt.plot(t, self.x, label="Procent gas")
+        # plt.xlabel("t [s]")
+        # plt.ylabel("gas [%]")
+        # plt.legend()
+
         plt.subplot(3, 1, 3)
-        plt.plot(t, self.x, label="Procent gas")
+        plt.plot(t, self.Fcar, label="Siła samochodu")
+        plt.plot(t[1:], self.Fop[1:], label="Siła oporu")
+        plt.plot(t[1:], self.Fg[1:], label="Siła spychająca")
         plt.xlabel("t [s]")
-        plt.ylabel("gas [%]")
-        plt.legend()
+        plt.ylabel("F [J]")
+        plt.legend(framealpha=.2, loc='upper right')
 
         buf = io.BytesIO()
-        plt.savefig(buf, format="png")
+        plt.savefig(buf, format="png", dpi=200)
         buf.seek(0)
-        # plt.close()
-        plt.clf()
+        plt.close()
+        # plt.clf()
         return buf
