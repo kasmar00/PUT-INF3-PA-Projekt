@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Projekt Podstawy Automatyki</h1>
+    <label for="name">Prędkość startowa</label>
+    <input type="number" id="start" /> <br />
+
+    <label for="name">Prędkość zadana</label>
+    <input type="number" id="end" /> <br />
+
+    <label for="name">Nachylenie</label>
+    <input type="number" id="alfa" /> <br />
+
+    <br />
+
+    <label for="name">kp</label>
+    <input type="number" id="kp" /> <br />
+    <label for="name">td</label>
+    <input type="number" id="Td" /> <br />
+    <label for="name">ti</label>
+    <input type="number" id="Ti" /> <br />
+
+    <br />
+
+    <label for="name">Powierzchnia przekroju poprzecznego pojazdu (A)</label>
+    <input type="number" id="A" /> <br />
+    <label for="name">Współczynnik oporu aerodynamicznego (Ca)</label>
+    <input type="number" id="Ca" /> <br />
+    <label for="name">Masa samochodu (m)</label>
+    <input type="number" id="m" /> <br />
+    <label for="name">Maksymalna siFdła silnika (Fdmax)</label>
+    <input type="number" id="Fdmax" /> <br />
+
+    <img src="api" alt="Plot" id="img" />
+  </body>
+  <script
+    type="text/javascript"
+    src="{{url_for('static', filename='js/main.js')}}"
+  ></script>
+</html>
