@@ -1,30 +1,24 @@
 from .car import Car
 
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, request
 app = Flask(__name__)
 
 
 @app.route('/')
 def index():
-    print("Wprowadź dane")
-
-    return render_template("main.jinja2")
+    return render_template("main.html")
 
 
-@app.route('/img/<alfa>/<start>/<end>/<kp>/<td>/<ti>/<area>/<ca>/<mass>/<fdmax>')
-def img(start=0, end=0, alfa=0, kp=0, td=0, ti=0, area=0, ca=0, mass=0, fdmax=0):
-    start = float(start)
-    end = float(end)
-    print(f"Start: {start} end: {end}")
+@app.route('/api')
+def api():
+    start = float(request.args.get("start", 0))
+    end = float(request.args.get("end", 20))
+
     a = Car(start, end)
-    a.alfa = float(alfa)
-    a.kp = float(kp)
-    a.td = float(td)
-    a.ti = float(ti)
-    a.area = float(area)
-    a.ca = float(ca)
-    a.mass = float(mass)
-    a.fdmax = float(fdmax)
+    settable = ["alfa", "kp", "Td", "Ti", "A", "Ca", "m", "Fdmax"]
+    for i in request.args:
+        if i in settable:
+            a.__setattr__(i, float(request.args.get(i)))
     a.sim()
 
     img = a.plots()
