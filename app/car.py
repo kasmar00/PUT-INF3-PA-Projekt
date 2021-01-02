@@ -138,7 +138,7 @@ class Car:
         plt.plot(t[1:], self.Fop[1:], label="Siła oporu")
         plt.plot(t[1:], self.Fg[1:], label="Siła spychająca")
         plt.xlabel("t [s]")
-        plt.ylabel("F [J]")
+        plt.ylabel("F [N]")
         plt.legend(framealpha=.2, loc='upper right')
 
         buf = io.BytesIO()
