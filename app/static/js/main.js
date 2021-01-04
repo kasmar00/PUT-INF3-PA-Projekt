@@ -17,18 +17,6 @@ const fdmax = document.querySelector("#Fdmax");
 
 const result = document.querySelector("#img");
 
-// default values
-starting.value = "0";
-ending.value = "20";
-alfa.value = "5";
-kp.value = "0.0015";
-td.value = "0.01";
-ti.value = "0.25";
-area.value = "5";
-ca.value = "0.24";
-mass.value = "1000";
-fdmax.value = "10000";
-
 // query function
 const update = (event) => {
   params.set(event.target.id, event.target.value);
