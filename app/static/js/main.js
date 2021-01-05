@@ -1,5 +1,5 @@
 // query parameters object
-const params = new URLSearchParams();
+let params = new URLSearchParams();
 
 // getting DOM objects
 const starting = document.querySelector("#start");
@@ -16,23 +16,12 @@ const mass = document.querySelector("#m");
 const fdmax = document.querySelector("#Fdmax");
 
 const result = document.querySelector("#img");
-
-// default values
-starting.value = "0";
-ending.value = "20";
-alfa.value = "5";
-kp.value = "0.0015";
-td.value = "0.01";
-ti.value = "0.25";
-area.value = "5";
-ca.value = "0.24";
-mass.value = "1000";
-fdmax.value = "10000";
+const submit_b = document.querySelector("#sub");
+const reset_b = document.querySelector("#rst");
 
 // query function
 const update = (event) => {
   params.set(event.target.id, event.target.value);
-  result.src = `api?${params.toString()}`;
 };
 
 // add unique id to each query
@@ -51,3 +40,17 @@ area.addEventListener("change", update);
 ca.addEventListener("change", update);
 mass.addEventListener("change", update);
 fdmax.addEventListener("change", update);
+
+// submit function
+const submit = () => {
+  result.src = `api?${params.toString()}`;
+};
+
+// reset function
+const reset = () => {
+  params = new URLSearchParams();
+};
+
+// submit/reset eventlisteners
+submit_b.addEventListener("click", submit);
+reset_b.addEventListener("click", reset);
