@@ -40,13 +40,17 @@ area.addEventListener("change", update);
 ca.addEventListener("change", update);
 mass.addEventListener("change", update);
 fdmax.addEventListener("change", update);
-const submit=() => {
+
+// submit function
+const submit = () => {
   result.src = `api?${params.toString()}`;
-  console.log("cokolwiek")
-}
-const reset=() => {
-  params=new URLSearchParams();
-  console.log("cokolwiek2")
-}
+};
+
+// reset function
+const reset = () => {
+  params = new URLSearchParams();
+};
+
+// submit/reset eventlisteners
 submit_b.addEventListener("click", submit);
 reset_b.addEventListener("click", reset);
