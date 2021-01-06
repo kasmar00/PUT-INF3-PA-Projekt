@@ -43,7 +43,14 @@ fdmax.addEventListener("change", update);
 
 // submit function
 const submit = () => {
-  result.src = `api?${params.toString()}`;
+  fetch(`api?${params.toString()}`)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (item) {
+      document.querySelector("#myplot").innerHTML = "";
+      Bokeh.embed.embed_item(item, "myplot");
+    });
 };
 
 // reset function
@@ -54,3 +61,5 @@ const reset = () => {
 // submit/reset eventlisteners
 submit_b.addEventListener("click", submit);
 reset_b.addEventListener("click", reset);
+
+submit(); //display default graph

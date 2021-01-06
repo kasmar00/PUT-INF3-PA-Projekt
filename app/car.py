@@ -1,10 +1,8 @@
-import io
+from bokeh.plotting import figure
+from bokeh.layouts import column
+
 import math
 from typing import *
-import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
-# https://stackoverflow.com/questions/49921721/runtimeerror-main-thread-is-not-in-main-loop-with-matplotlib-and-flask
 
 
 class Car:
@@ -111,39 +109,36 @@ class Car:
 
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
-        plt.close()
+        p_h = 250
+        p_w = 800
+        s1 = figure(title="", sizing_mode="fixed",
+                    plot_width=p_w, plot_height=p_h)
+        s2 = figure(title="", sizing_mode="fixed", plot_width=p_w,
+                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
+        s3 = figure(title="", sizing_mode="fixed", plot_width=p_w,
+                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
 
-        plt.subplot(3, 1, 1)
-        plt.plot(t, self.v, label="v")
-        plt.axhline(y=self.vzad, color='r', linestyle='--', label="vzad")
-        plt.xlabel("t [s]")
-        plt.ylabel("v [m/s]")
-        plt.legend()
+        s1.xaxis.axis_label = "t [s]"
+        s1.yaxis.axis_label = "y"
+        s1.line(t, self.v, color="blue", width=3, legend_label="v")
+        s1.line(t, self.vzad, color="red", line_dash="dashed",
+                width=3, legend_label="v_zad")
 
-        plt.subplot(3, 1, 2)
-        plt.plot(t, self.u, label="u")
-        plt.plot(t, self.u_pierwotne, label="u_pierwotne")
-        plt.xlabel("t [s]")
-        plt.ylabel("u [V]")
-        plt.legend()
+        s2.xaxis.axis_label = "x"
+        s2.yaxis.axis_label = "y"
+        s2.line(t, self.u_pierwotne, color="orange",
+                width=5, legend_label="u_pierwotne")
+        s2.line(t, self.u, color="blue", width=2, legend_label="u")
 
-        # plt.subplot(4, 1, 3)
-        # plt.plot(t, self.x, label="Procent gas")
-        # plt.xlabel("t [s]")
-        # plt.ylabel("gas [%]")
-        # plt.legend()
+        s3.xaxis.axis_label = "x"
+        s3.yaxis.axis_label = "y"
+        s3.line(t, self.Fcar, color="blue", width=3,
+                legend_label="Siła samochodu")
+        s3.line(t[1:], self.Fg[1:], color="green",
+                width=3, legend_label="Siła spychająca")
+        s3.line(t[1:], self.Fop[1:], color="red",
+                width=3, legend_label="Siła oporu")
 
-        plt.subplot(3, 1, 3)
-        plt.plot(t, self.Fcar, label="Siła samochodu")
-        plt.plot(t[1:], self.Fop[1:], label="Siła oporu")
-        plt.plot(t[1:], self.Fg[1:], label="Siła spychająca")
-        plt.xlabel("t [s]")
-        plt.ylabel("F [N]")
-        plt.legend(framealpha=.2, loc='upper right')
-
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png", dpi=200)
-        buf.seek(0)
-        plt.close()
-        # plt.clf()
-        return buf
+        s3.legend.location = "top_right"
+        p = column(s1, s2, s3)
+        return p

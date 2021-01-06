@@ -1,6 +1,9 @@
 from .car import Car
 
-from flask import Flask, render_template, send_file, request
+import json
+from bokeh.embed import json_item
+from bokeh.resources import CDN
+from flask import Flask, render_template, request
 app = Flask(__name__)
 
 
@@ -21,5 +24,6 @@ def api():
             a.__setattr__(i, float(request.args.get(i)))
     a.sim()
 
-    img = a.plots()
-    return send_file(img, mimetype='image/png')
+    plot = a.plots()
+    return json.dumps(json_item(plot))
+    # https://stackoverflow.com/a/24803830
