@@ -59,7 +59,33 @@ const reset = () => {
 };
 
 // submit/reset eventlisteners
-submit_b.addEventListener("click", submit);
+//submit_b.addEventListener("click", submit);
 reset_b.addEventListener("click", reset);
 
 submit(); //display default graph
+
+//podmiana obrazka
+jQuery(function(){
+    jQuery('#formularz').submit(function(e){
+        e.preventDefault();
+        submit();//generowanie wykresu
+        var vZadana = jQuery('#end').val()
+        var nachylenie = jQuery('#alfa').val()
+        //console.log('vZadana: '+vZadana)
+        //console.log('nachylenie: '+nachylenie)
+        if (vZadana < 0 && nachylenie > 0) {
+            jQuery('#obrazek').attr('src','/static/pod_gorke_-.jpg')
+        } else if (vZadana > 0 && nachylenie > 0)
+        {
+            jQuery('#obrazek').attr('src','/static/pod_gorke_+.jpg')
+        }
+        else if (vZadana > 0 && nachylenie < 0)
+        {
+            jQuery('#obrazek').attr('src','/static/z_gorki_+.png')
+        }
+        else if (vZadana < 0 && nachylenie < 0)
+        {
+            jQuery('#obrazek').attr('src','/static/z_gorki_-.jpg')
+        }
+    })
+})
