@@ -119,19 +119,26 @@ class Car:
                     plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
 
         s1.xaxis.axis_label = "t [s]"
-        s1.yaxis.axis_label = "y"
-        s1.line(t, self.v, color="blue", width=3, legend_label="v")
-        s1.line(t, self.vzad, color="red", line_dash="dashed",
+        s1.yaxis.axis_label = "v [ᵏᵐ/ₕ]"
+        s1.yaxis.axis_label_text_font_style = 'normal'
+        s1.xaxis.axis_label_text_font_style = 'normal'
+        s1.line(t, [3.6*x for x in self.v],
+                color="blue", width=3, legend_label="v")
+        s1.line(t, self.vzad*3.6, color="red", line_dash="dashed",
                 width=3, legend_label="v_zad")
 
-        s2.xaxis.axis_label = "x"
-        s2.yaxis.axis_label = "y"
+        s2.xaxis.axis_label = "t [s]"
+        s2.yaxis.axis_label = "u [V]"
+        s2.yaxis.axis_label_text_font_style = 'normal'
+        s2.xaxis.axis_label_text_font_style = 'normal'
         s2.line(t, self.u_pierwotne, color="orange",
                 width=5, legend_label="u_pierwotne")
         s2.line(t, self.u, color="blue", width=2, legend_label="u")
 
-        s3.xaxis.axis_label = "x"
-        s3.yaxis.axis_label = "y"
+        s3.xaxis.axis_label = "t [s]"
+        s3.yaxis.axis_label = "F [N]"
+        s3.yaxis.axis_label_text_font_style = 'normal'
+        s3.xaxis.axis_label_text_font_style = 'normal'
         s3.line(t, self.Fcar, color="blue", width=3,
                 legend_label="Siła samochodu")
         s3.line(t[1:], self.Fg[1:], color="green",
