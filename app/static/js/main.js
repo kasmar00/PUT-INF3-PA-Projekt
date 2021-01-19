@@ -21,7 +21,12 @@ const reset_b = document.querySelector("#rst");
 
 // query function
 const update = (event) => {
-  params.set(event.target.id, event.target.value);
+  let value = event.target.value;
+  if (event.target.id == "start" || event.target.id == "end") {
+    value = value / 3.6;
+    value = Math.round(value * 1000000) / 1000000;
+  }
+  params.set(event.target.id, value);
 };
 
 // add unique id to each query
