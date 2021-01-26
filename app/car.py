@@ -1,10 +1,9 @@
-import io
+from bokeh.plotting import figure
+from bokeh.layouts import gridplot
+from bokeh.models import Div
+
 import math
 from typing import *
-import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
-# https://stackoverflow.com/questions/49921721/runtimeerror-main-thread-is-not-in-main-loop-with-matplotlib-and-flask
 
 
 class Car:
@@ -45,10 +44,14 @@ class Car:
         self.x: List[float] = [0.0, ]           # gaz
         # wartości prędkości pojazdu [m/s]
         self.v: List[float] = [v0, ]
+        self.street: List[float] = [0, ]  # pozycja pojazdu [m]
+        # ograniczenia napięć
         self.umin: float = -20
         self.umax: float = 20
-        self.vmax: float = 200
-        self.vmin: float = -200
+
+        # wskaźniki jakości
+        self.Ie: float = 0
+        self.Iu: float = 0
 
         # tablica sil do wykresow
         self.Fcar: List[float] = [0.0]
@@ -103,47 +106,74 @@ class Car:
             self.Fg.append(sgnFg*Fg)
             self.Fop.append(sgnFop*Fop)
 
-            if v >= self.vmax:
-                v = self.vmax
-            if v <= self.vmin:
-                v = self.vmin
+            self.street.append(self.Tp*v+self.street[-1])
+
             self.v.append(v)
+        # obliczenie wskaźników
+        self.Ie = self.Tp * sum([abs(x) for x in self.e])
+        self.Iu = self.Tp * sum([abs(x) for x in self.u])
 
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
-        plt.close()
+        p_h = 200
+        p_w = 650
 
-        plt.subplot(3, 1, 1)
-        plt.plot(t, self.v, label="v")
-        plt.axhline(y=self.vzad, color='r', linestyle='--', label="vzad")
-        plt.xlabel("t [s]")
-        plt.ylabel("v [m/s]")
-        plt.legend()
+        # div ze wskaźnikami jakości
+        d = Div(text=f"I<sub>|u|</sub>={round(self.Iu, 2)} I<sub>|e|</sub>={round(self.Ie, 2)}",
+                width=20, height=30)
 
-        plt.subplot(3, 1, 2)
-        plt.plot(t, self.u, label="u")
-        plt.plot(t, self.u_pierwotne, label="u_pierwotne")
-        plt.xlabel("t [s]")
-        plt.ylabel("u [V]")
-        plt.legend()
+        onHover = [("(x,y)", "($x, $y)")]
 
-        # plt.subplot(4, 1, 3)
-        # plt.plot(t, self.x, label="Procent gas")
-        # plt.xlabel("t [s]")
-        # plt.ylabel("gas [%]")
-        # plt.legend()
+        s1 = figure(title="", plot_width=p_w,
+                    plot_height=p_h, tooltips=onHover)
+        s2 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+        s3 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+        s4 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
 
-        plt.subplot(3, 1, 3)
-        plt.plot(t, self.Fcar, label="Siła samochodu")
-        plt.plot(t[1:], self.Fop[1:], label="Siła oporu")
-        plt.plot(t[1:], self.Fg[1:], label="Siła spychająca")
-        plt.xlabel("t [s]")
-        plt.ylabel("F [N]")
-        plt.legend(framealpha=.2, loc='upper right')
+        # wykres prędkości
+        s1.xaxis.axis_label = "t [s]"
+        s1.yaxis.axis_label = "v [ᵏᵐ/ₕ]"
+        s1.yaxis.axis_label_text_font_style = 'normal'
+        s1.xaxis.axis_label_text_font_style = 'normal'
+        s1.line(t, [3.6*x for x in self.v],
+                color="blue", width=3, legend_label="v")
+        s1.line(t, self.vzad*3.6, color="red", line_dash="dashed",
+                width=3, legend_label="v_zad")
 
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png", dpi=200)
-        buf.seek(0)
-        plt.close()
-        # plt.clf()
-        return buf
+        # wykres napięcia regulatora
+        s2.xaxis.axis_label = "t [s]"
+        s2.yaxis.axis_label = "u [V]"
+        s2.yaxis.axis_label_text_font_style = 'normal'
+        s2.xaxis.axis_label_text_font_style = 'normal'
+        s2.line(t, self.u_pierwotne, color="orange",
+                width=5, legend_label="u_pierwotne")
+        s2.line(t, self.u, color="blue", width=2, legend_label="u")
+
+        # wykres sił
+        s3.xaxis.axis_label = "t [s]"
+        s3.yaxis.axis_label = "F [N]"
+        s3.yaxis.axis_label_text_font_style = 'normal'
+        s3.xaxis.axis_label_text_font_style = 'normal'
+        s3.line(t, self.Fcar, color="blue", width=3,
+                legend_label="Siła samochodu")
+        s3.line(t[1:], self.Fg[1:], color="green",
+                width=3, legend_label="Siła spychająca")
+        s3.line(t[1:], self.Fop[1:], color="red",
+                width=3, legend_label="Siła oporu")
+
+        # Wykres pozycji
+        s4.xaxis.axis_label = "t [s]"
+        s4.yaxis.axis_label = "x [m]"
+        s4.yaxis.axis_label_text_font_style = 'normal'
+        s4.xaxis.axis_label_text_font_style = 'normal'
+        s4.line(t, self.street, color="skyblue", width=3,
+                legend_label="Pozycja pojazdu")
+
+        s4.legend.location = "bottom_right"
+
+        p = gridplot([d, s1, s2, s3, s4], ncols=1,
+                     toolbar_location='right', plot_width=p_w-30)
+        return p

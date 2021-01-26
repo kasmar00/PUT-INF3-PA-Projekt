@@ -21,7 +21,12 @@ const reset_b = document.querySelector("#rst");
 
 // query function
 const update = (event) => {
-  params.set(event.target.id, event.target.value);
+  let value = event.target.value;
+  if (event.target.id == "start" || event.target.id == "end") {
+    value = value / 3.6;
+    value = Math.round(value * 1000000) / 1000000;
+  }
+  params.set(event.target.id, value);
 };
 
 // add unique id to each query
@@ -43,7 +48,14 @@ fdmax.addEventListener("change", update);
 
 // submit function
 const submit = () => {
-  result.src = `api?${params.toString()}`;
+  fetch(`api?${params.toString()}`)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (item) {
+      document.querySelector("#myplot").innerHTML = "";
+      Bokeh.embed.embed_item(item, "myplot");
+    });
 };
 
 // reset function
@@ -52,5 +64,33 @@ const reset = () => {
 };
 
 // submit/reset eventlisteners
-submit_b.addEventListener("click", submit);
+//submit_b.addEventListener("click", submit);
 reset_b.addEventListener("click", reset);
+
+submit(); //display default graph
+
+//podmiana obrazka
+jQuery(function(){
+    jQuery('#formularz').submit(function(e){
+        e.preventDefault();
+        submit();//generowanie wykresu
+        var vZadana = jQuery('#end').val()
+        var nachylenie = jQuery('#alfa').val()
+        //console.log('vZadana: '+vZadana)
+        //console.log('nachylenie: '+nachylenie)
+        if (vZadana < 0 && nachylenie > 0) {
+            jQuery('#obrazek').attr('src','/static/pod_gorke_-.jpg')
+        } else if (vZadana > 0 && nachylenie > 0)
+        {
+            jQuery('#obrazek').attr('src','/static/pod_gorke_+.jpg')
+        }
+        else if (vZadana > 0 && nachylenie < 0)
+        {
+            jQuery('#obrazek').attr('src','/static/z_gorki_+.png')
+        }
+        else if (vZadana < 0 && nachylenie < 0)
+        {
+            jQuery('#obrazek').attr('src','/static/z_gorki_-.jpg')
+        }
+    })
+})
