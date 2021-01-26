@@ -1,5 +1,5 @@
 from bokeh.plotting import figure
-from bokeh.layouts import column
+from bokeh.layouts import gridplot
 from bokeh.models import Div
 
 import math
@@ -116,19 +116,22 @@ class Car:
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
         p_h = 200
-        p_w = 800
+        p_w = 650
 
         # div ze wskaźnikami jakości
         d = Div(text=f"I<sub>|u|</sub>={round(self.Iu, 2)} I<sub>|e|</sub>={round(self.Ie, 2)}",
                 width=20, height=30)
 
-        s1 = figure(title="", sizing_mode="scale_width", plot_height=200)
-        s2 = figure(title="", sizing_mode="scale_width",
-                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
-        s3 = figure(title="", sizing_mode="scale_width",
-                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
-        s4 = figure(title="", sizing_mode="scale_width",
-                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
+        onHover = [("(x,y)", "($x, $y)")]
+
+        s1 = figure(title="", plot_width=p_w,
+                    plot_height=p_h, tooltips=onHover)
+        s2 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+        s3 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+        s4 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
 
         # wykres prędkości
         s1.xaxis.axis_label = "t [s]"
@@ -170,5 +173,7 @@ class Car:
                 legend_label="Pozycja pojazdu")
 
         s4.legend.location = "bottom_right"
-        p = column(d, s1, s2, s3, s4)
+
+        p = gridplot([d, s1, s2, s3, s4], ncols=1,
+                     toolbar_location='right', plot_width=p_w-30)
         return p
