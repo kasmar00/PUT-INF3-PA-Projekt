@@ -115,20 +115,19 @@ class Car:
 
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
-        p_h = 250
+        p_h = 200
         p_w = 800
 
         # div ze wskaźnikami jakości
         d = Div(text=f"I<sub>|u|</sub>={round(self.Iu, 2)} I<sub>|e|</sub>={round(self.Ie, 2)}",
-                width=p_w, height=30)
+                width=20, height=30)
 
-        s1 = figure(title="", sizing_mode="fixed",
-                    plot_width=p_w, plot_height=p_h)
-        s2 = figure(title="", sizing_mode="fixed", plot_width=p_w,
+        s1 = figure(title="", sizing_mode="scale_width", plot_height=200)
+        s2 = figure(title="", sizing_mode="scale_width",
                     plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
-        s3 = figure(title="", sizing_mode="fixed", plot_width=p_w,
+        s3 = figure(title="", sizing_mode="scale_width",
                     plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
-        s4 = figure(title="", sizing_mode="fixed", plot_width=p_w,
+        s4 = figure(title="", sizing_mode="scale_width",
                     plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
 
         # wykres prędkości
