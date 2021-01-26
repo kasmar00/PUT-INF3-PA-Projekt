@@ -1,5 +1,6 @@
 from bokeh.plotting import figure
-from bokeh.layouts import column
+from bokeh.layouts import gridplot
+from bokeh.models import Div
 
 import math
 from typing import *
@@ -43,10 +44,14 @@ class Car:
         self.x: List[float] = [0.0, ]           # gaz
         # wartości prędkości pojazdu [m/s]
         self.v: List[float] = [v0, ]
+        self.street: List[float] = [0, ]  # pozycja pojazdu [m]
+        # ograniczenia napięć
         self.umin: float = -20
         self.umax: float = 20
-        self.vmax: float = 200
-        self.vmin: float = -200
+
+        # wskaźniki jakości
+        self.Ie: float = 0
+        self.Iu: float = 0
 
         # tablica sil do wykresow
         self.Fcar: List[float] = [0.0]
@@ -101,23 +106,34 @@ class Car:
             self.Fg.append(sgnFg*Fg)
             self.Fop.append(sgnFop*Fop)
 
-            if v >= self.vmax:
-                v = self.vmax
-            if v <= self.vmin:
-                v = self.vmin
+            self.street.append(self.Tp*v+self.street[-1])
+
             self.v.append(v)
+        # obliczenie wskaźników
+        self.Ie = self.Tp * sum([abs(x) for x in self.e])
+        self.Iu = self.Tp * sum([abs(x) for x in self.u])
 
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
-        p_h = 250
-        p_w = 800
-        s1 = figure(title="", sizing_mode="fixed",
-                    plot_width=p_w, plot_height=p_h)
-        s2 = figure(title="", sizing_mode="fixed", plot_width=p_w,
-                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
-        s3 = figure(title="", sizing_mode="fixed", plot_width=p_w,
-                    plot_height=p_h, x_range=s1.x_range, x_scale=s1.x_scale)
+        p_h = 200
+        p_w = 650
 
+        # div ze wskaźnikami jakości
+        d = Div(text=f"I<sub>|u|</sub>={round(self.Iu, 2)} I<sub>|e|</sub>={round(self.Ie, 2)}",
+                width=20, height=30)
+
+        onHover = [("(x,y)", "($x, $y)")]
+
+        s1 = figure(title="", plot_width=p_w,
+                    plot_height=p_h, tooltips=onHover)
+        s2 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+        s3 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+        s4 = figure(title="", plot_width=p_w, plot_height=p_h,
+                    x_range=s1.x_range, x_scale=s1.x_scale, tooltips=onHover)
+
+        # wykres prędkości
         s1.xaxis.axis_label = "t [s]"
         s1.yaxis.axis_label = "v [ᵏᵐ/ₕ]"
         s1.yaxis.axis_label_text_font_style = 'normal'
@@ -127,6 +143,7 @@ class Car:
         s1.line(t, self.vzad*3.6, color="red", line_dash="dashed",
                 width=3, legend_label="v_zad")
 
+        # wykres napięcia regulatora
         s2.xaxis.axis_label = "t [s]"
         s2.yaxis.axis_label = "u [V]"
         s2.yaxis.axis_label_text_font_style = 'normal'
@@ -135,6 +152,7 @@ class Car:
                 width=5, legend_label="u_pierwotne")
         s2.line(t, self.u, color="blue", width=2, legend_label="u")
 
+        # wykres sił
         s3.xaxis.axis_label = "t [s]"
         s3.yaxis.axis_label = "F [N]"
         s3.yaxis.axis_label_text_font_style = 'normal'
@@ -146,6 +164,16 @@ class Car:
         s3.line(t[1:], self.Fop[1:], color="red",
                 width=3, legend_label="Siła oporu")
 
-        s3.legend.location = "top_right"
-        p = column(s1, s2, s3)
+        # Wykres pozycji
+        s4.xaxis.axis_label = "t [s]"
+        s4.yaxis.axis_label = "x [m]"
+        s4.yaxis.axis_label_text_font_style = 'normal'
+        s4.xaxis.axis_label_text_font_style = 'normal'
+        s4.line(t, self.street, color="skyblue", width=3,
+                legend_label="Pozycja pojazdu")
+
+        s4.legend.location = "bottom_right"
+
+        p = gridplot([d, s1, s2, s3, s4], ncols=1,
+                     toolbar_location='right', plot_width=p_w-30)
         return p

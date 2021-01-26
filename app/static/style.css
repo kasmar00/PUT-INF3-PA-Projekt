@@ -29,3 +29,8 @@ label {
     color:#fff;
     padding:5px 15px;
 }
+
+.bk-tool-icon-help,
+.bk-logo {
+    display: none !important;
+}
