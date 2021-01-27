@@ -1,3 +1,4 @@
+from bokeh.models.transforms import Jitter
 from bokeh.plotting import figure
 from bokeh.layouts import gridplot
 from bokeh.models import Div
@@ -9,9 +10,9 @@ from typing import *
 class Car:
     def __init__(self, v0, vzad):
         # stałe dla regulatora PID
-        self.kp: float = 0.0015                 # wzmocznienie regulatora
-        self.Td: float = 0.01                   # czas wyprzedzenia [s]
-        self.Ti: float = 0.25                   # czas zdwojenia [s]
+        self.kp: float = 0.0007                 # wzmocznienie regulatora
+        self.Td: float = 0.009                   # czas wyprzedzenia [s]
+        self.Ti: float = 0.4                   # czas zdwojenia [s]
 
         self.tsim: float = 1 * 500              # czas symulacji [s]
         self.Tp: float = 0.1                    # czas próbkowania [s]
@@ -23,7 +24,7 @@ class Car:
         # stałe dla siły oporu aerodynamicznego (Fp)
         self.rho: float = 1.225                 # gęstość powietrza [kg/m^3]
         # powierzchnia przekroju poprzecznego pojazdu [m^2]
-        self.A: float = 5.0
+        self.A: float = 7.0
         self.Ca: float = 0.24                   # współczynnik oporu aerodynamicznego
 
         # stałe dla siły spychającej (Fs)
@@ -52,6 +53,8 @@ class Car:
         # wskaźniki jakości
         self.Ie: float = 0
         self.Iu: float = 0
+        self.kappa: float = 0
+        self.tr: float = 0
 
         # tablica sil do wykresow
         self.Fcar: List[float] = [0.0]
@@ -112,6 +115,17 @@ class Car:
         # obliczenie wskaźników
         self.Ie = self.Tp * sum([abs(x) for x in self.e])
         self.Iu = self.Tp * sum([abs(x) for x in self.u])
+        if (self.vzad > 0):
+            self.kappa = (max(self.v)-self.vzad)/self.vzad*100  # %
+        else:
+            self.kappa = (abs(min(self.v))-abs(self.vzad)) / \
+                abs(self.vzad)*100  # %
+
+        for j in range(self.N, 1, -1):
+            if abs(self.v[j]) <= abs(self.vzad*0.95) or abs(self.v[j]) >= abs(self.vzad*1.05):
+                self.tr = j
+                break
+        self.tr = self.tr*self.Tp
 
     def plots(self):
         t = [i * self.Tp for i in range(self.N + 1)]
@@ -119,8 +133,8 @@ class Car:
         p_w = 650
 
         # div ze wskaźnikami jakości
-        d = Div(text=f"I<sub>|u|</sub>={round(self.Iu, 2)} I<sub>|e|</sub>={round(self.Ie, 2)}",
-                width=20, height=30)
+        d = Div(text=f"Przeregulowanie: {round(self.kappa, 2)}%;  Czas regulacji: {round(self.tr, 2)}s;  Dokładność regulacji: {round(self.Ie, 2)};  Koszt regulacji: {round(self.Iu, 2)}",
+                width=600, height=30)
 
         onHover = [("(x,y)", "($x, $y)")]
 
