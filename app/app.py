@@ -15,7 +15,7 @@ def index():
 @app.route('/api')
 def api():
     start = float(request.args.get("start", 0))
-    end = float(request.args.get("end", 20))
+    end = float(request.args.get("end", 30.556))
 
     a = Car(start, end)
     settable = ["alfa", "kp", "Td", "Ti", "A", "Ca", "m", "Fdmax"]
