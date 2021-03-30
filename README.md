@@ -1,19 +1,37 @@
-# PUT-INF3-PA-Projekt
+# Symulacja tempomatu aktywnego
 
-Projekt zaliczeniowy na laboratorium z Podstaw Automatyki
+Projekt zaliczeniowy na laboratorium z Podstaw Automatyki.
 
-## Zależności
+Autorzy: Patryk Hubicki, Jakub Kaczmarek, Marcin Kasznia, Anna Prałat
 
-1. Instalacja zależności z pliku `requirements.txt`
+Informatyka 3 sem, Wydział Informatyki i Telekomunikacji, Politechnika Poznańska 2020/21.
 
-   `pip3 install -r requirements.txt`
+Interaktywna wersja demonstracyjna: https://tempomat-pa-pp.herokuapp.com/
 
-2. Zapisanie zależności do pliku
+## Uruchomienie
 
-   `pip3 freeze > requirements.txt`
+1.  Opcjonalnie: utworzyć _virtual enviroment_
+1.  Zainstalować zależności z pliku `requirements.txt`
+1.  Uruchomić plik `wsgi.py` z katalogu `app/`
+1.  Aplikacja będzie dostępna pod adresem `localhost:5000`
 
-   Uwaga: wykoryzstywac tylko w virtual enviroment.
+Alternatywnie można wykorzystać przygotowany `makefile` przez polecenie `$ make`
 
-## Deployment
+# Cruise control simulation
 
-https://dev.to/techparida/how-to-deploy-a-flask-app-on-heroku-heb
+Final project for laboratory in Basic of automatics.
+
+Authors: Patryk Hubicki, Jakub Kaczmarek, Marcin Kasznia, Anna Prałat
+
+Computing 3 sem, Faculty of Computing and Telecomunications Poznań Univeristy of Technology 2020/2021.
+
+Interactive version avaliable under: https://tempomat-pa-pp.herokuapp.com/
+
+## Running
+
+1. Optionaly: create _virtual enviroment_
+2. Install dependencies from `requirements.txt`
+3. Run the `wsgi.py` file from `app/` folder
+4. App should be avaliable under `http://localhost:5000`
+
+Alternatively use a provided `makefile`, run with `$ make`
