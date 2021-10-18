@@ -1,5 +1,7 @@
 # Symulacja tempomatu aktywnego
 
+![Screenshot of demo](Screenshot.png)
+
 Projekt zaliczeniowy na laboratorium z Podstaw Automatyki.
 
 Autorzy: Patryk Hubicki, Jakub Kaczmarek, Marcin Kasznia, Anna Prałat
